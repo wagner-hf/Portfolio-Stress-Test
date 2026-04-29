@@ -24,7 +24,7 @@
 
   Chart.register(verticalLinePlugin);
 
-  const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/27031091/uj0ajne/';
+  const WEBHOOK_URL = 'https://hooks.zapier.com/hooks/catch/27031091/uv8yq4a/';
   const ASSET_KEYS = ['cash', 'bonds', 'stocks', 'real-estate', 'crypto', 'gold', 'other'];
   const INITIAL_ALLOC = { cash: 10, bonds: 20, stocks: 40, 'real-estate': 15, crypto: 5, gold: 5, other: 5 };
 
