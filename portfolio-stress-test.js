@@ -1,9 +1,8 @@
-<script>
 (function () {
   'use strict';
 
   // ==========================================
-  // 1. UTILIDADES COMPARTIDAS
+  // 1. UTILIDADES COMPARTIDAS                        Blueprint Project Update: Changes and Logic Rules
   // ==========================================
   function formatMoney(n) {
     return new Intl.NumberFormat('en-US', {
@@ -112,6 +111,7 @@
     function goToStep(next) {
       if (next < 1 || next > STATE.totalSteps) return;
       
+      // Blindaje de Seguridad para Webflow (Sin Optional Chaining)
       const currentEl = $(`[data-step="${STATE.currentStep}"]`);
       if (currentEl) currentEl.classList.remove('active');
       
@@ -459,6 +459,8 @@
   // ==========================================
   function initApp() {
     if (document.querySelector('[data-app="stress-test"]')) initStressTest();
+    // Si tu página tiene el ID "iv-tickerInput", asegúrate de descomentar/agregar
+    // tu lógica de Intrinsic Value aquí abajo.
   }
 
   if (document.readyState === 'loading') {
@@ -468,4 +470,3 @@
   }
 
 })();
-</script>
