@@ -1,3 +1,4 @@
+<script>
 (function () {
   'use strict';
 
@@ -111,7 +112,6 @@
     function goToStep(next) {
       if (next < 1 || next > STATE.totalSteps) return;
       
-      // Blindaje de Seguridad para Webflow (Sin Optional Chaining)
       const currentEl = $(`[data-step="${STATE.currentStep}"]`);
       if (currentEl) currentEl.classList.remove('active');
       
@@ -380,7 +380,7 @@
           labels: ['Inflation', 'Concentration', 'Low Growth', 'Systemic', 'Deflation Shock', 'Income'],
           datasets: [{
             data: Object.values(STATE.riskPoints).map(v => v * 25),
-            backgroundColor: 'rgba(232, 64, 64, 0.6)',
+            backgroundColor: 'rgba(255, 241, 118, 0.6)',
             borderColor: 'var(--red)',
             pointBackgroundColor: 'var(--red)',
             borderWidth: 2, fill: true
@@ -390,8 +390,8 @@
           scales: {
             r: {
               min: 0, max: 100, ticks: { display: false },
-              grid: { color: 'rgba(46, 204, 113, 0.2)' },
-              angleLines: { color: 'rgba(46, 204, 113, 0.2)' },
+              grid: { color: 'rgba(230, 237, 233, 0.2)' },
+              angleLines: { color: 'rgba(230, 237, 233, 0.2)' },
               pointLabels: { color: '#cbd5e1', font: { family: "'DM Mono'", size: 12 } }
             }
           },
@@ -459,8 +459,6 @@
   // ==========================================
   function initApp() {
     if (document.querySelector('[data-app="stress-test"]')) initStressTest();
-    // Si tu página tiene el ID "iv-tickerInput", asegúrate de descomentar/agregar
-    // tu lógica de Intrinsic Value aquí abajo.
   }
 
   if (document.readyState === 'loading') {
@@ -470,3 +468,4 @@
   }
 
 })();
+</script>
