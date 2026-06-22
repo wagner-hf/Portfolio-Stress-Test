@@ -6,7 +6,7 @@
       }
 
       function initStressTest() {
-        // Rellenar dinámicamente los selectores de edades (18 a 100)
+        // Dynamically populate age dropdowns (18 to 100)
         const currentAgeSelect = document.getElementById('currentAgeSelect');
         const retireAgeSelect = document.getElementById('retireAgeSelect');
         if (currentAgeSelect && retireAgeSelect) {
@@ -43,12 +43,12 @@
         const INITIAL_ALLOC = { cash: 10, bonds: 20, stocks: 40, 'real-estate': 15, bitcoin: 5, gold: 5, other: 5 };
 
         const RISK_INFO = {
-          "Inflation": { desc: "Vulnerability to a sustained period of rising consumer prices and currency debasement.", note: "Consider increasing allocation to hard assets (gold, real estate, commodities) or Bitcoin to protect purchasing power." },
-          "Concentration": { desc: "Over-reliance on a single asset class or geographic region.", note: "Diversify into non-correlated asset classes to reduce single-point-of-failure risk." },
-          "Low Growth": { desc: "Risk of portfolio not outpacing inflation or meeting retirement goals due to low yields.", note: "Allocate more towards equities or growth-focused assets." },
-          "Systemic": { desc: "Exposure to broad market crashes and standard financial system failures.", note: "Ensure adequate non-correlated asymmetric hedges." },
-          "Deflation Shock": { desc: "Vulnerability to a liquidity crisis, credit contraction, or severe economic slowdown.", note: "Ensure adequate cash reserves or high-quality government bonds to provide optionality during a crash." },
-          "Income": { desc: "High dependency on active work. Income is a large percent of net worth.", note: "Build passive income streams and increase emergency reserves to reduce dependency on active income." }
+          "Inflation": { desc: "Vulnerability to a sustained period of rising prices and currency debasement.", note: "You may be under allocated to gold, equities, leveraged real estate, or Bitcoin." },
+          "Concentration": { desc: "Over-reliance on a single asset or correlated asset class.", note: "You may be under diversified in non-correlated asset classes." },
+          "Low Growth": { desc: "Risk of portfolio not outpacing inflation or meeting retirement goals due to low compounding growth rate.", note: "You may be under exposed to growth-focused assets that are vital to long-term wealth creation." },
+          "Systemic": { desc: "Exposure to broad market crashes and financial system failures.", note: "You may be vulnerable to bank runs or broad economic shocks with no downside hedges." },
+          "Deflation Shock": { desc: "Vulnerability to a liquidity crisis, credit contraction, or severe economic slowdown.", note: "You may have inadequate cash reserves to provide optionality during a deleveraging event." },
+          "Income": { desc: "High dependency on active work. Income is a large percent of your net worth.", note: "You may be over-spending a good income and insufficiently saving/investing to meet your financial goals." }
         };
 
         const RANGE_VALUES = {
@@ -73,7 +73,6 @@
         const $ = (sel, ctx = document) => ctx.querySelector(sel);
         const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
-        // Helper para convertir la edad exacta al bucket de Zapier
         function getAgeBucket(age) {
           if (age < 30) return '20s';
           if (age < 40) return '30s';
@@ -105,17 +104,36 @@
             if (pip.classList) { idx < STATE.currentStep ? pip.classList.add('active') : pip.classList.remove('active'); }
           });
 
-          // Si llegamos al Sneak Peek (Paso 7), calculamos todo
+          // Calculate logic when entering Step 7 (Sneak Peek)
           if (next === 7) {
             computeLogic();
-            renderResults(); // Actualiza KPI visual
-            setTimeout(() => { drawMatrix(); }, 50); // Dibuja la matriz
+            renderResults();
+            setTimeout(() => { drawMatrix(); }, 50);
           }
 
-          // Si saltamos directo a resultados (Paso 8)
+          // Final Results Dashboard Prep
           if (next === STATE.totalSteps) {
+            const diagCards = document.getElementById('diagnostic-cards');
+            const insertPoint = document.getElementById('results-diagnostic-insertion');
+            const heroHeader = document.getElementById('hero-header');
+            const topNav = document.getElementById('top-nav');
+
+            // Hide top menu elements
+            if (heroHeader) heroHeader.style.display = 'none';
+            if (topNav) topNav.style.display = 'none';
+
+            // Move Diagnostic cards to final results view
+            if (diagCards && insertPoint) {
+              insertPoint.appendChild(diagCards);
+            }
             setTimeout(() => { drawProjections(); }, 50);
+          } else {
+            const heroHeader = document.getElementById('hero-header');
+            const topNav = document.getElementById('top-nav');
+            if (heroHeader) heroHeader.style.display = 'block';
+            if (topNav) topNav.style.display = 'flex';
           }
+
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -137,7 +155,7 @@
 
         function initUI() {
 
-          // Capturar eventos de Select (Dropdowns)
+          // Dropdown Listeners
           document.addEventListener('change', e => {
             const select = e.target.closest('select.custom-select');
             if (select) {
@@ -157,6 +175,7 @@
           });
 
           document.addEventListener('click', e => {
+            // Handle BOTH Continue and Next buttons identically
             const btnNext = e.target.closest('[data-action="next"]');
             if (btnNext) {
               const validation = validators[STATE.currentStep] ? validators[STATE.currentStep]() : true;
@@ -167,7 +186,7 @@
             if (e.target.closest('[data-action="prev"]')) goToStep(STATE.currentStep - 1);
             if (e.target.closest('[data-action="restart"]')) window.location.reload();
 
-            // Checkboxes simulados con botones
+            // Checkbox simulation
             const btn = e.target.closest('.radio-btn.multi-select');
             if (btn) {
               btn.classList.toggle('selected');
@@ -196,10 +215,6 @@
               STATE.name = tName;
               STATE.email = tEmail;
               submitToWebhook();
-            }
-
-            if (e.target.closest('[data-action="skip-to-results"]')) {
-              goToStep(8);
             }
           });
         }
@@ -253,7 +268,6 @@
         }
 
         function computeLogic() {
-          // Lógica Freedom Number AHORA USA EL TARGET INCOME ELEGIDO EN PASO 4
           STATE.freedomNumber = (STATE.targetIncome > 0 && STATE.returnRate > 0) ? (STATE.targetIncome / (STATE.returnRate / 100)) : 2000000;
 
           const a = STATE.allocation;
@@ -332,11 +346,11 @@
             const info = RISK_INFO[riskName] || { desc: '', note: '' };
 
             container.innerHTML += `
-              <div class="risk-card-item">
-                 <div class="risk-card-header"><div class="risk-card-title">${riskName} Risk</div><div class="risk-badge ${cls}">${txt}</div></div>
-                 <div class="risk-desc">${info.desc}</div>
-                 <div class="heresy-note">> Heresy Note: ${info.note}</div>
-              </div>`;
+          <div class="risk-card-item">
+             <div class="risk-card-header"><div class="risk-card-title">${riskName} Risk</div><div class="risk-badge ${cls}">${txt}</div></div>
+             <div class="risk-desc">${info.desc}</div>
+             <div class="heresy-note">> Heresy Note: ${info.note}</div>
+          </div>`;
           }
         }
 
@@ -347,10 +361,10 @@
 
           const dataValues = Object.values(STATE.riskPoints);
           const bgColors = dataValues.map(v => {
-            if (v === 1) return 'rgba(46, 204, 113, 0.8)'; // Green
-            if (v === 2) return 'rgba(245, 197, 24, 0.8)'; // Yellow
-            if (v === 3) return 'rgba(243, 156, 18, 0.8)'; // Orange
-            return 'rgba(232, 64, 64, 0.8)'; // Red
+            if (v === 1) return 'rgba(46, 204, 113, 0.8)';
+            if (v === 2) return 'rgba(245, 197, 24, 0.8)';
+            if (v === 3) return 'rgba(243, 156, 18, 0.8)';
+            return 'rgba(232, 64, 64, 0.8)';
           });
 
           STATE._charts.radar = new Chart(ctx, {
@@ -419,32 +433,38 @@
           if (STATE._charts.proj) STATE._charts.proj.destroy();
 
           let target = STATE.freedomNumber > 0 ? STATE.freedomNumber : 2000000;
+          let rCurrent = STATE.returnRate / 100;
+          let rFixed = (STATE.returnRate + 5) / 100;
+          let annualContribution = STATE.savings * 12;
 
-          let timeline = STATE.retireAge - STATE.currentAge;
-          if (timeline <= 0) timeline = 10;
-
-          const dataCurrent = [STATE.netWorth];
-          const dataFixed = [STATE.netWorth];
-          const dataTarget = [target];
-          const labels = ['Now'];
+          let dataCurrent = [STATE.netWorth];
+          let dataFixed = [STATE.netWorth];
+          let dataTarget = [target];
+          let labels = ['Now'];
 
           let balCurrent = STATE.netWorth;
           let balFixed = STATE.netWorth;
-          let year = 1;
 
-          while (year <= timeline) {
-            let r = STATE.returnRate / 100;
-            balCurrent = balCurrent * (1 + r) + (STATE.savings * 12);
+          // Calculamos cuántos años le toma a la Línea Roja tocar la meta
+          let yearsToFreedom = 0;
+          let tempBal = STATE.netWorth;
+
+          // Aumentamos el límite a 500 para cumplir con Joe: la línea debe tocar la meta aunque tome 200 años.
+          while (tempBal < target && yearsToFreedom < 500) {
+            yearsToFreedom++;
+            tempBal = tempBal * (1 + rCurrent) + annualContribution;
+          }
+          if (yearsToFreedom === 0) yearsToFreedom = 1;
+
+          for (let i = 1; i <= yearsToFreedom; i++) {
+            balCurrent = balCurrent * (1 + rCurrent) + annualContribution;
             dataCurrent.push(balCurrent);
 
-            let rFixed = (STATE.returnRate + 5) / 100;
-            balFixed = balFixed * (1 + rFixed) + (STATE.savings * 12);
+            balFixed = balFixed * (1 + rFixed) + annualContribution;
             dataFixed.push(balFixed);
 
             dataTarget.push(target);
-
-            labels.push(`Yr ${year}`);
-            year++;
+            labels.push(`Yr ${i}`);
           }
 
           STATE._charts.proj = new Chart(ctx, {
