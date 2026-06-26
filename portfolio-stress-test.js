@@ -178,6 +178,25 @@
             // Handle BOTH Continue and Next buttons identically
             const btnNext = e.target.closest('[data-action="next"]');
             if (btnNext) {
+
+              // FIX: Prevenir el "hack" en el Paso 7 y forzar el envío a Zapier
+              if (STATE.currentStep === 7) {
+                let tName = $('[data-input="name"]').value.trim();
+                let tEmail = $('[data-input="email"]').value.trim();
+
+                if (tName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tEmail)) {
+                  showError(7, "Please enter a valid name and email address.");
+                  return;
+                }
+
+                hideError(7);
+                STATE.name = tName;
+                STATE.email = tEmail;
+                submitToWebhook();
+                return; // Detenemos el flujo normal; el webhook cambiará de página al terminar
+              }
+
+              // Comportamiento normal para los pasos 1 al 6
               const validation = validators[STATE.currentStep] ? validators[STATE.currentStep]() : true;
               if (validation === true) { hideError(STATE.currentStep); goToStep(STATE.currentStep + 1); }
               else { showError(STATE.currentStep, validation); }
@@ -485,15 +504,6 @@
                   data: dataCurrent,
                   borderColor: '#e84040',
                   borderDash: [5, 5],
-                  fill: false,
-                  pointRadius: 0
-                },
-                {
-                  label: 'Freedom Number Goal',
-                  data: dataTarget,
-                  borderColor: '#f5c518',
-                  borderDash: [2, 2],
-                  borderWidth: 2,
                   fill: false,
                   pointRadius: 0
                 }
